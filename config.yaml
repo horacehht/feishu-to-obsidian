@@ -1,0 +1,46 @@
+# 飞书应用凭据（从飞书开放平台获取）
+# https://open.feishu.cn/app → 创建自建应用 → 凭证与基础信息
+app_id: "cli_xxxxxxxxxxxxxxxx"
+app_secret: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# 导出目标目录（Obsidian vault 路径）
+output_dir: "~/obsidian-vault"
+
+# 要迁移的 Wiki 空间列表（可多个）
+# space_id 获取方式：Wiki 页面地址栏 → xxx.feishu.cn/wiki/xxxxxxxx 中的路径部分
+# 或在 Wiki 设置页面查看
+wiki_spaces:
+  - space_id: "xxxxxxxx"
+    name: "knowledge"        # 可选，用于本地文件夹命名
+
+# 可选：迁移单篇文档（document_id 来自飞书文档 URL）
+# single_docs:
+#   - doc_id: "xxxxxxxx"
+
+# Obsidian 链接风格
+# "wikilink" → [[文件名]]
+# "markdown" → [标题](./path/file.md)
+link_style: "wikilink"
+
+# 附件存放位置，对应 Obsidian「Files and links → Default location for new attachments」
+# vault_folder     → 存入 <output_dir>/<assets_dir>/（vault 统一附件目录）
+# same_folder      → 存入与文档相同的目录
+# subfolder        → 存入文档同级的 <assets_dir>/ 子目录（默认，推荐）
+# specified_folder → 存入 <output_dir>/<assets_dir>/（与 vault_folder 等价）
+attachments_location: "subfolder"
+
+# 附件子目录名（attachments_location 为 subfolder / vault_folder / specified_folder 时生效）
+assets_dir: "attachments"
+
+# 速率限制（飞书 API 限制约 100 req/min）
+rate_limit_per_minute: 60
+
+# 增量同步：记录已导出文档的修改时间
+sync_state_file: ".feishu_sync_state.json"
+
+# 文档 frontmatter 选项
+frontmatter:
+  include_created_time: true
+  include_modified_time: true
+  include_feishu_url: true
+  include_owner: false

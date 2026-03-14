@@ -1,0 +1,10 @@
+# 敏感凭据
+.token_cache.json
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# 系统文件
+.DS_Store
