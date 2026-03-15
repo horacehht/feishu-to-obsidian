@@ -1,6 +1,22 @@
 # feishu-to-obsidian
 
-将飞书 Wiki 空间批量导出为 Obsidian Markdown 文档，保留层级目录结构，并自动下载图片附件。
+中文 | [English](README_EN.md)
+
+将飞书 Wiki 知识库批量迁移至 Obsidian，保留完整层级结构，自动本地化图片附件，支持增量同步。让 Obsidian 中的 Claude 直接索引你的知识库，获得 AI 加持的沉浸式阅读体验。
+
+## 为什么用 feishu-to-obsidian？
+
+很多人长期在飞书云文档里积累知识库，但飞书的 AI 能力有限，难以做到真正的知识沉淀与检索。
+
+**feishu-to-obsidian 解决两件事：**
+
+**1. 让 AI 读懂你的飞书知识库**
+
+Obsidian 中的 [Claudian](https://github.com/YishenTu/claudian) 等插件可以让 Claude 直接索引本地 vault，对你的知识库提问、总结、关联。但前提是内容必须在本地。这个工具把飞书 Wiki 完整转换为 Obsidian vault，让你的知识库立刻获得 AI 加持。
+
+**2. 持续增量同步，保持两端一致**
+
+不是"一次性导出"。你继续在飞书上写文档，定时跑一次（或配置 crontab）即可将新增和修改的内容同步到 Obsidian，两端长期保持一致，不需要手动维护。
 
 **功能亮点：**
 
@@ -12,15 +28,14 @@
 
 ---
 
-## 前置条件
+## 快速开始
+
+**前置条件：**
 
 - Python 3.11+
-- 飞书云文档
-- 拥有目标 Wiki 空间的访问权限
+- 飞书云文档账号，并拥有目标 Wiki 空间的访问权限
 
----
-
-## 安装
+**安装：**
 
 ```bash
 git clone https://github.com/horacehht/feishu-to-obsidian.git
@@ -30,17 +45,19 @@ pip install -r requirements.txt
 
 ---
 
-## config.yaml中关于飞书的配置参数
+## 配置
+
+运行前需要完成飞书开放平台的授权配置，并填写 `config.yaml`。
 
 ### 第一步：获取 `app_id` 和 `app_secret`
 
 **第 1 步：进入飞书开放平台**
 
-访问 https://open.feishu.cn/app，使用飞书账号登录。
+访问 `https://open.feishu.cn/app`，使用飞书账号登录。
 
 **第 2 步：创建自建应用**
 
-点击「创建企业自建应用」，填写下方信息后，点击“创建“按钮
+点击「创建企业自建应用」，填写下方信息后，点击"创建"按钮
 
 - 应用名称（如 `feishu-to-obsidian`）
 - 应用描述（可随意填写）
@@ -161,16 +178,27 @@ frontmatter:
 ```bash
 python migrate.py                          # 全量迁移
 python migrate.py --incremental            # 增量同步（跳过未修改文档）
-python migrate.py --limit 3               # 测试：只迁移前 10 篇
+python migrate.py --limit 3               # 测试：只迁移前 3 篇
 python migrate.py --doc-id <document_id>   # 调试：只导出单篇文档
 python migrate.py --config other.yaml      # 指定其他配置文件
 ```
 
-首次运行会**自动打开浏览器完成 OAuth 授权**，在跳出的网页中点击“确认“即可，token 缓存于 `.token_cache.json`。
+首次运行会**自动打开浏览器完成 OAuth 授权**，在跳出的网页中点击"确认"即可，token 缓存于 `.token_cache.json`，后续运行不再弹出。
 
-之后可以通过crontab命令来执行定时增量同步，比如 `(crontab -l 2>/dev/null; echo "0 9 * * * cd /path/to/feishu-to-obsidian && python migrate.py --config config.yaml --incremental >> /tmp/feishu_sync.log 2>&1") | crontab -`
+之后可以通过 crontab 配置定时增量同步，将 `/path/to/feishu-to-obsidian` 替换为你的项目路径：
 
-其中 `0 9 * * * `是定时每天早上9点，而 `/path/to/feishu-to-obsidian`换成你项目的路径。
+```bash
+# 每天早上 7 点同步
+(crontab -l 2>/dev/null; echo "0 7 * * * cd /path/to/feishu-to-obsidian && python migrate.py --config config.yaml --incremental >> /tmp/feishu_sync.log 2>&1") | crontab -
+
+# 每隔 2 小时同步一次
+(crontab -l 2>/dev/null; echo "0 */2 * * * cd /path/to/feishu-to-obsidian && python migrate.py --config config.yaml --incremental >> /tmp/feishu_sync.log 2>&1") | crontab -
+
+# 每周一早上 9 点同步一次
+(crontab -l 2>/dev/null; echo "0 9 * * 1 cd /path/to/feishu-to-obsidian && python migrate.py --config config.yaml --incremental >> /tmp/feishu_sync.log 2>&1") | crontab -
+```
+
+运行 `crontab -l` 可查看当前已配置的定时任务，同步日志写入 `/tmp/feishu_sync.log`。
 
 ### 后处理链接（post_process.py，可选）
 
@@ -187,7 +215,7 @@ python post_process.py --dry-run # 预览模式，不修改文件
 python count_images.py           # 统计图片数量与预估占用空间
 ```
 
-执行这个脚本可以提前估计下载知识库的文档会在本地占多少存储空
+执行这个脚本可以提前估计下载知识库的文档会在本地占多少存储空间。
 
 ---
 
@@ -195,7 +223,7 @@ python count_images.py           # 统计图片数量与预估占用空间
 
 - 目录结构与 Wiki 层级保持一致
 - 图片/附件位置由 `attachments_location` 控制（默认 `subfolder`，存于各文档同级的 `<assets_dir>/` 子目录），与 Obsidian「Default location for new attachments」四种模式对齐
-- `.feishu_sync_state.json`：增量同步状态记录，存放在~/obsidian-vault目录中
+- `.feishu_sync_state.json`：增量同步状态记录，存放在 `~/obsidian-vault` 目录中
 - `migrate_errors.json`：失败文档列表（出现时生成）
 - `post_process_report.json`：链接转换统计报告
 
